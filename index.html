@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AR/VR Authoring and learning took">
+    <meta name="keywords" content="quiz, movie, 3d">
+    <meta name="author" content="Enric Moreu">
+    <meta name="theme-color" content="#323238">
+    <!-- <link rel="icon" -->
+        <!-- href="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/apple/285/movie-camera_1f3a5.png" /> -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Indie+Flower&family=Exo:ital,wght@0,500;1,900&display=swap"
+        rel="stylesheet" rel="stylesheet">
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/main.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.3.1/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@teachablemachine/image@0.8/dist/teachablemachine-image.min.js"></script>
+<script type="text/javascript">
+    // More API functions here:
+    // https://github.com/googlecreativelab/teachablemachine-community/tree/master/libraries/image
+
+    // the link to your model provided by Teachable Machine export panel
+    const URL = "https://teachablemachine.withgoogle.com/models/IrMGMe3yR/";
+
+    let model, webcam, labelContainer, maxPredictions;
+
+    // Load the image model and setup the webcam
+    async function ianit() {
+        const modelURL = URL + "model.json";
+        const metadataURL = URL + "metadata.json";
+
+        // load the model and metadata
+        // Refer to tmImage.loadFromFiles() in the API to support files from a file picker
+        // or files from your local hard drive
+        // Note: the pose library adds "tmImage" object to your window (window.tmImage)
+        model = await tmImage.load(modelURL, metadataURL);
+        maxPredictions = model.getTotalClasses();
+
+        // Convenience function to setup a webcam
+        const flip = true; // whether to flip the webcam
+        webcam = new tmImage.Webcam(200, 200, flip); // width, height, flip
+        await webcam.setup(); // request access to the webcam
+        await webcam.play();
+        window.requestAnimationFrame(loop);
+
+        // append elements to the DOM
+        document.getElementById("webcam-container").appendChild(webcam.canvas);
+        labelContainer = document.getElementById("label-container");
+        for (let i = 0; i < maxPredictions; i++) { // and class labels
+            labelContainer.appendChild(document.createElement("div"));
+        }
+    }
+
+    async function loop() {
+        webcam.update(); // update the webcam frame
+        await predict();
+        window.requestAnimationFrame(loop);
+    }
+
+    // run the webcam image through the image model
+    async function predict() {
+        // predict can take in an image, video or canvas html element
+        const prediction = await model.predict(webcam.canvas);
+        // const predictions = prediction.data();
+        // console.log(prediction);
+    let top5 = Array.from(prediction)
+        .map(function (p, i) { // this is Array.map
+            return {
+                probability: p,
+                className: prediction.className // we are selecting the value from the obj
+            };
+        }).sort(function (a, b) {
+            return b.probability - a.probability;
+        }).slice(0, 4);
+        // console.log(top5);
+
+        // const classPrediction =
+        //         prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+
+
+        for (let i = 0; i < top5.length; i++) {
+        const results = top5[i].probability.probability;
+        //    console.log(results.toFixed(1));
+           if (results.toFixed(1) > 0.9){
+            // console.log("prediction value : ",results.toFixed(1) );
+            labelContainer.innerHTML = top5[i].probability.className;
+			x =  top5[i].probability.className;
+			// array.push(x);
+			// /
+			// 
+			// 
+//////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////			
+			// item already exust
+			array.indexOf(x) === -1 ? array.push(x) : console.log("This item already exists");
+	///////////////////////////////////////////////
+	//////////////////////////////////////////////////
+	////////////////////////////////////////////////////////
+
+
+// console.log(array)
+           } else {
+            // labelContainer.innerHTML = "null";
+            // console.log("null");
+           }
+        //    console.log(tf.argMax(results).toFixed(1))
+        //     const classPrediction =
+        //         prediction[i].className + ": " + prediction[i].probability.toFixed(2);
+        //     labelContainer.childNodes[i].innerHTML = classPrediction;
+        //   console.log("afrgmax prediction  :", tf.argMax(prediction[i].probability.toFixed(2)));
+       
+        }
+// console.log(array);
+
+
+    }
+</script>
+
+    <!-- <title>3D Movie Quiz by Enric Moreu</title> -->
+</head>
+
+<body>
+
+    <div id='spinner'>
+        <div class="loader"></div>
+    </div>
+
+    <div id="wrap">
+        <div id="main" class="container clear-top">
+            <!-- Title -->
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="wrapper" id="title-h1">
+                            <div class="container">
+                                <h1>AR <br>VR <br>Auhtoring tool</h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Subtitle -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="subtitle">
+                            <h3>Instancy</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Counter + hint -->
+                <div class="row">
+                    <div class="col-md-1">
+                    </div>
+
+                    <div class="col-md-10">
+                        <div id="quiz">
+                            <button type="button" onclick="ianit()">Start</button>
+                            <div id="webcam-container"></div>
+                            <div id="label-container"></div>
+                            <div id="quiz2">
+                                <div class="animated-box in">
+                                    <div id="hint">1. Movie from 1933</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+                    </div>
+                </div>
+
+                <!-- 3D -->
+                <div class="row">
+                    <div class="col-md-1">
+                    </div>
+
+                    <div class="col-md-10">
+                        <div id="canvas3d">
+                            <div class="col-centered" id="list-container">
+                                <!-- <button></button> -->
+                            </div>
+                            <div class="col-centered" id="scene-container"></div>
+                        </div>
+                        <div id='tip'>
+                            Pan to rotate/zoom
+                            <svg xmlns="http://www.w3.org/2000/svg" width="85" height="40">
+                                <g fill="none" stroke="white" stroke-width="1.5" stroke-linecap="round"
+                                    stroke-linejoin="round" stroke-miterlimit="10">
+                                    <path
+                                        d="M1.618 31.629c24.42.542 48.628 3.428 72.932 5.633.346-9.751.688-19.321 2.068-28.967" />
+                                    <path
+                                        d="M69.854 12.22c3.721-2.325 4.348-6.603 7.402-9.481 1.046 3.027 3.443 9.07 6.125 11.113" />
+                                </g>
+                            </svg>
+
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+                    </div>
+                </div>
+
+                <!-- Feedback -->
+                <div class="row">
+                    <div class="col-md-4">
+                    </div>
+                    <div class="col-md-4">
+                        <div id="feedback-info">
+                            <div id='feedback'>Oops, try again!</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                    </div>
+                </div>
+
+
+                <!-- Input -->
+                <div class="row">
+                    <div class="col-md-2">
+                    </div>
+                    <div class="col-md-8">
+                        <div id="question">
+
+                            <form id="answer-input">
+                                <div class="input-group submit-box">
+                                    <input autocomplete="off" id="submit-text" onkeydown="if (event.keyCode == 13)
+                                    {document.getElementById('submit-button').click(); return false;}" type="text"
+                                        placeholder="E.g. Titanic" class="form-control btn btn-secondary">
+
+                                       
+                                    <!-- <div class="input-group-append">
+                                        <button id="hint-tooltip" class="form-control btn btn-secondary" type="button"
+                                            data-toggle="tooltip" data-placement="left"
+                                            title="Sci-Fi movie where a fifty-foot gorilla goes on a rampage, destroying everything in his past and kidnapping a beautiful young actress in New York City.">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                                fill="#F8FFE5" class="bi bi-question-square" viewBox="0 0 16 16">
+                                                <path
+                                                    d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z" />
+                                                <path
+                                                    d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z" />
+                                            </svg>
+                                        </button>
+                                    </div> -->
+                                </div>
+                                <input autocomplete="off" id="label-text" onkeydown="if (event.keyCode == 13)
+                                { valu = document.getElementById('label-text').value;console.log(valu)}" type="text"
+                                    placeholder="input label" class="form-control btn btn-secondary">
+
+                                <input id="submit-button" type="button" value="Submit">
+                                <!-- <input id="submit-label" type="button" value="inster"> -->
+
+                            </form>
+                            <a id="nextquestion" href="#">Skip movie</a>
+
+                        </div>
+                    </div>
+                    <div class="col-md-2"></div>
+                </div>
+
+
+                <!-- Start button -->
+                <div class="row">
+                    <div class="col-md-1">
+                    </div>
+                    <div class="col-md-5">
+                        <button id="start-button" class="custom-btn btn-14"><span>student</span></button>
+                    </div>
+                    <div class="col-md-5">
+                        <button id="author-button" class="custom-btn btn-14"><span>author</span></button>
+                    </div>
+                    <div class="col-md-1">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Description -->
+    <footer class="footer">
+
+        <div id="description">
+            <!-- <h2><a href="https://enricmor.eu" target="_blank">by Enric Moreu
+            </a> -->
+            <a href="https://github.com/enric1994/moviequiz" target="_blank">
+                <svg xmlns="http://www.w3.org/2000/svg" width="0.8em" height="0.8em" fill="#F8FFE5" class="bi bi-github" viewBox="0 0 16 16">
+                    <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+                  </svg>
+            </a>
+
+            </h2>
+        </div>
+    </footer>
+
+</body>
+
+<!-- Title 3D -->
+<script src="https://npmcdn.com/tether@1.2.4/dist/js/tether.min.js"></script>
+
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js'></script>
+
+<!-- Bootstrap -->
+<script src="js/bootstrap.min.js"></script>
+<script src="js/scripts.js"></script>
+
+<script>
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+    })
+</script>
+
+
+<!-- Three JS -->
+<script type="module" src="js/main.js"></script>
+
+</html>
